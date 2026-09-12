@@ -7,7 +7,15 @@ authors = [
     { name = "Your Name", email = "you@example.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "alembic>=1.19.2",
+    "pgvector>=0.5.0",
+    "psycopg[binary]>=3.3.5",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
+    "python-dotenv>=1.2.3",
+    "sqlalchemy>=2.0.52",
+]
 
 [project.scripts]
 agentic-data-analyst = "agentic_data_analyst:main"
@@ -15,3 +23,9 @@ agentic-data-analyst = "agentic_data_analyst:main"
 [build-system]
 requires = ["uv_build>=0.12.13,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.7",
+]
