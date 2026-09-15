@@ -1,9 +1,18 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String
+from sqlalchemy import (
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
+from pgvector.sqlalchemy import Vector
 
 class Base(DeclarativeBase):
     pass
@@ -195,5 +204,68 @@ class OrderPayment(Base):
 
     payment_value: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
+        nullable=False,
+    )
+
+
+EMBEDDING_DIMENSION = 384
+
+
+class SchemaDocument(Base):
+    __tablename__ = "schema_documents"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "schema_name",
+            "table_name",
+            name="uq_schema_documents_schema_table",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+
+    schema_name: Mapped[str] = mapped_column(
+        String(63),
+        nullable=False,
+    )
+
+    table_name: Mapped[str] = mapped_column(
+        String(63),
+        nullable=False,
+    )
+
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    content_hash: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+    )
+
+    embedding_model: Mapped[str | None] = mapped_column(
+        String(120),
+        nullable=True,
+    )
+
+    embedding: Mapped[list[float] | None] = mapped_column(
+        Vector(EMBEDDING_DIMENSION),
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False,
     )
