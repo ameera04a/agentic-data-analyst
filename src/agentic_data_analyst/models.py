@@ -13,6 +13,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from pgvector.sqlalchemy import Vector
+from agentic_data_analyst.embedding_config import (
+    EMBEDDING_CONFIG,
+)
 
 class Base(DeclarativeBase):
     pass
@@ -208,7 +211,6 @@ class OrderPayment(Base):
     )
 
 
-EMBEDDING_DIMENSION = 384
 
 
 class SchemaDocument(Base):
@@ -253,7 +255,7 @@ class SchemaDocument(Base):
     )
 
     embedding: Mapped[list[float] | None] = mapped_column(
-        Vector(EMBEDDING_DIMENSION),
+        Vector(EMBEDDING_CONFIG.dimension),
         nullable=True,
     )
 
