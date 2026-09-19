@@ -3,6 +3,8 @@ from sqlalchemy.orm import sessionmaker
 
 from agentic_data_analyst.config import settings
 
+from sqlalchemy.orm import sessionmaker
+
 
 engine = create_engine(
     settings.database_url,
