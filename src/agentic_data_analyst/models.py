@@ -1,9 +1,11 @@
 from datetime import datetime
 from decimal import Decimal
-
+from sqlalchemy.dialects import postgresql
 from sqlalchemy import (
+    Computed,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
@@ -11,6 +13,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from pgvector.sqlalchemy import Vector
 from agentic_data_analyst.embedding_config import (
@@ -222,8 +225,20 @@ class SchemaDocument(Base):
             "table_name",
             name="uq_schema_documents_schema_table",
         ),
+        Index(
+            "ix_schema_documents_search_vector",
+            "search_vector",
+            postgresql_using="gin",
+        ),
     )
-
+    search_vector: Mapped[str] = mapped_column(
+        TSVECTOR,
+        Computed(
+            "to_tsvector('english'::regconfig, content)",
+            persisted=True,
+        ),
+        nullable=False,
+    )
     id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True,
