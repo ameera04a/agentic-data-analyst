@@ -17,6 +17,7 @@ dependencies = [
     "python-dotenv>=1.2.3",
     "sentence-transformers[onnx]>=5.7.0",
     "sqlalchemy>=2.0.52",
+    "sqlglot>=30.21.0",
 ]
 
 [project.scripts]

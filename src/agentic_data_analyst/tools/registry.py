@@ -8,6 +8,10 @@ from agentic_data_analyst.tools.schema_search import (
     SchemaSearchTool,
     SearchSchemaArgs,
 )
+from agentic_data_analyst.tools.sql_execution import (
+    ExecuteSqlArgs,
+    SqlExecutionTool,
+)
 from agentic_data_analyst.tools.table_schema import (
     GetTableSchemaArgs,
     TableSchemaTool,
@@ -41,20 +45,19 @@ class ToolRegistry:
     def __init__(self) -> None:
         schema_search = SchemaSearchTool()
         table_schema = TableSchemaTool()
+        sql_execution = SqlExecutionTool()
 
         self._tools = {
             "search_schema": ToolSpec(
                 name="search_schema",
                 description=(
-                    "Discover database tables "
-                    "relevant to a data-analysis "
-                    "question when the exact table "
-                    "name is not yet known. Returns "
-                    "ranked candidate tables and "
-                    "their business purpose. Use "
-                    "get_table_schema afterward "
-                    "when exact columns, keys, or "
-                    "relationships are needed."
+                    "Discover database tables relevant to a "
+                    "data-analysis question when exact table "
+                    "names are not known. Call this once to "
+                    "identify likely tables. Do not call it "
+                    "again unless the returned candidates are "
+                    "insufficient. For exact columns and "
+                    "relationships, use get_table_schema."
                 ),
                 args_model=SearchSchemaArgs,
                 handler=schema_search.execute,
@@ -70,9 +73,29 @@ class ToolRegistry:
                     "exact table name is already "
                     "known. If it is unknown, use "
                     "search_schema first."
+                    "Use this to "
+                    "verify schema and join paths before generating "
+                    "SQL."
                 ),
                 args_model=GetTableSchemaArgs,
                 handler=table_schema.execute,
+            ),
+            "execute_sql": ToolSpec(
+                name="execute_sql",
+                description=(
+                    "Execute one read-only "
+                    "PostgreSQL SELECT query "
+                    "against the business database "
+                    "and return its rows. Use this "
+                    "only after relevant tables and "
+                    "columns have been verified "
+                    "with schema tools. Never use "
+                    "it for INSERT, UPDATE, DELETE, "
+                    "CREATE, DROP, ALTER, or other "
+                    "write operations."
+                ),
+                args_model=ExecuteSqlArgs,
+                handler=sql_execution.execute,
             ),
         }
 

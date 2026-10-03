@@ -1,11 +1,17 @@
 from pydantic import SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    SettingsConfigDict,
+)
 
 
 class Settings(BaseSettings):
     database_url: str
 
+    agent_database_url: SecretStr | None = None
+
     groq_api_key: SecretStr | None = None
+
     groq_model: str = "openai/gpt-oss-120b"
 
     model_config = SettingsConfigDict(
