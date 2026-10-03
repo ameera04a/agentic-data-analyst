@@ -2,6 +2,9 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from agentic_data_analyst.business_metadata import (
+    BUSINESS_METADATA,
+)
 from agentic_data_analyst.reranking import (
     SchemaReranker,
 )
@@ -48,15 +51,33 @@ class SchemaSearchTool:
             candidate_k=5,
         )
 
-        return {
-            "query": args.query,
-            "results": [
+        compact_results = []
+
+        for rank, result in enumerate(
+            results,
+            start=1,
+        ):
+            key = (
+                f"{result.schema_name}."
+                f"{result.table_name}"
+            )
+
+            metadata = BUSINESS_METADATA.get(key)
+
+            compact_results.append(
                 {
+                    "rank": rank,
                     "schema_name": result.schema_name,
                     "table_name": result.table_name,
-                    "content": result.content,
-                    "rerank_score": result.rerank_score,
+                    "business_purpose": (
+                        metadata.purpose
+                        if metadata is not None
+                        else None
+                    ),
                 }
-                for result in results
-            ],
+            )
+
+        return {
+            "query": args.query,
+            "results": compact_results,
         }
